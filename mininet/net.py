@@ -651,15 +651,18 @@ class Mininet( object ):
         sent, received = int( m.group( 1 ) ), int( m.group( 2 ) )
         return sent, received
 
-    def ping( self, hosts=None, timeout=None ):
+    def ping( self, hosts=None, timeout=None, count=1 ):
         """Ping between all specified hosts.
            hosts: list of hosts
            timeout: time to wait for a response, as string
+           count: the 'c' parameter passed to the ping command
            returns: ploss packet loss percentage"""
         # should we check if running?
         packets = 0
         lost = 0
         ploss = None
+        # Check if count is an integer
+        count = int(count)
         if not hosts:
             hosts = self.hosts
             output( '*** Ping: testing ping reachability\n' )
@@ -671,8 +674,8 @@ class Mininet( object ):
                     if timeout:
                         opts = '-W %s' % timeout
                     if dest.intfs:
-                        result = node.cmd( 'LANG=C ping -c1 %s %s' %
-                                           (opts, dest.IP()) )
+                        result = node.cmd( 'LANG=C ping -c%s %s %s' %
+                                           (count, opts, dest.IP()) )
                         sent, received = self._parsePing( result )
                     else:
                         sent, received = 0, 0
@@ -726,14 +729,17 @@ class Mininet( object ):
         rttdev = float( m.group( 4 ) )
         return sent, received, rttmin, rttavg, rttmax, rttdev
 
-    def pingFull( self, hosts=None, timeout=None ):
+    def pingFull( self, hosts=None, timeout=None, count=1 ):
         """Ping between all specified hosts and return all data.
            hosts: list of hosts
            timeout: time to wait for a response, as string
+           count: the 'c' parameter passed to the ping command
            returns: all ping data; see function body."""
         # should we check if running?
         # Each value is a tuple: (src, dsd, [all ping outputs])
         all_outputs = []
+        # Check if count is an integer
+        count = int(count)
         if not hosts:
             hosts = self.hosts
             output( '*** Ping: testing ping reachability\n' )
@@ -744,7 +750,8 @@ class Mininet( object ):
                     opts = ''
                     if timeout:
                         opts = '-W %s' % timeout
-                    result = node.cmd( 'ping -c1 %s %s' % (opts, dest.IP()) )
+                    result = node.cmd( 'LANG=C ping -c%s %s %s' %
+                                        (count, opts, dest.IP()) )
                     outputs = self._parsePingFull( result )
                     sent, received, rttmin, rttavg, rttmax, rttdev = outputs
                     all_outputs.append( (node, dest, outputs) )
@@ -759,10 +766,10 @@ class Mininet( object ):
                     (rttmin, rttavg, rttmax, rttdev) )
         return all_outputs
 
-    def pingAll( self, timeout=None ):
+    def pingAll( self, timeout=None, count=1 ):
         """Ping between all hosts.
            returns: ploss packet loss percentage"""
-        return self.ping( timeout=timeout )
+        return self.ping( timeout=timeout, count=1 )
 
     def pingPair( self ):
         """Ping between first two hosts, useful for testing.
