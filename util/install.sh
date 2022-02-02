@@ -29,7 +29,7 @@ KERNEL_LOC=http://www.openflow.org/downloads/mininet
 DIST=Unknown
 RELEASE=Unknown
 CODENAME=Unknown
-ARCH=`uname -m`
+ARCH=$(uname -m)
 if [ "$ARCH" = "x86_64" ]; then ARCH="amd64"; fi
 if [ "$ARCH" = "i686" ]; then ARCH="i386"; fi
 
@@ -69,15 +69,15 @@ if [ "$DIST" = "SUSE Linux" ]; then
     fi
 fi
 if which lsb_release &> /dev/null; then
-    DIST=`lsb_release -is`
-    RELEASE=`lsb_release -rs`
-    CODENAME=`lsb_release -cs`
+    DIST=$(lsb_release -is)
+    RELEASE=$(lsb_release -rs)
+    CODENAME=$(lsb_release -cs)
 fi
 echo "Detected Linux distribution: $DIST $RELEASE $CODENAME $ARCH"
 
 # Kernel params
 
-KERNEL_NAME=`uname -r`
+KERNEL_NAME=$(uname -r)
 KERNEL_HEADERS=kernel-headers-${KERNEL_NAME}
 
 # Treat Raspbian as Debian
@@ -90,14 +90,14 @@ if ! echo $DIST | egrep "$DISTS" >/dev/null; then
 fi
 
 # More distribution info
-DIST_LC=`echo $DIST | tr [A-Z] [a-z]` # as lower case
+DIST_LC=$(echo $DIST | tr [A-Z] [a-z]) # as lower case
 
 
 # Determine whether version $1 >= version $2
 # usage: if version_ge 1.20 1.2.3; then echo "true!"; fi
 function version_ge {
     # sort -V sorts by *version number*
-    latest=`printf "$1\n$2" | sort -V | tail -1`
+    latest=$(printf "$1\n$2" | sort -V | tail -1)
     # If $1 is latest version, then $1 >= $2
     [ "$1" == "$latest" ]
 }
@@ -176,7 +176,7 @@ function mn_deps {
         pf=pyflakes
         # Starting around 20.04, installing pyflakes instead of pyflakes3
         # causes Python 2 to be installed, which is exactly NOT what we want.
-        if [ `expr $RELEASE '>=' 20.04` = "1" ]; then
+        if [ $(expr $RELEASE '>=' 20.04) = "1" ]; then
                 pf=pyflakes3
         fi
         $install gcc make socat psmisc xterm ssh iperf telnet \
@@ -306,7 +306,7 @@ function install_wireshark {
     cp -n $MININET_DIR/mininet/util/colorfilters $HOME/.wireshark
 
     echo "Checking Wireshark version"
-    WSVER=`wireshark -v | egrep -o '[0-9\.]+' | head -1`
+    WSVER=$(wireshark -v | egrep -o '[0-9\.]+' | head -1)
     if version_ge $WSVER 1.12; then
         echo "Wireshark version $WSVER >= 1.12 - returning"
         return
@@ -320,7 +320,7 @@ function install_wireshark {
 
     # Copy into plugin directory
     # libwireshark0/ on 11.04; libwireshark1/ on later
-    WSDIR=`find /usr/lib -type d -name 'libwireshark*' | head -1`
+    WSDIR=$(find /usr/lib -type d -name 'libwireshark*' | head -1)
     WSPLUGDIR=$WSDIR/plugins/
     PLUGIN=loxi_output/wireshark/openflow.lua
     sudo cp $PLUGIN $WSPLUGDIR
@@ -377,7 +377,7 @@ function ubuntuOvs {
              uuid-runtime
 
     # Build OVS
-    parallel=`grep processor /proc/cpuinfo | wc -l`
+    parallel=$(grep processor /proc/cpuinfo | wc -l)
     cd $BUILD_DIR/openvswitch/openvswitch-$OVS_RELEASE
             DEB_BUILD_OPTIONS='parallel=$parallel nocheck' fakeroot debian/rules binary
     cd ..
@@ -462,14 +462,14 @@ function ovs {
 }
 
 function remove_ovs {
-    pkgs=`dpkg --get-selections | grep openvswitch | awk '{ print $1;}'`
+    pkgs=$(dpkg --get-selections | grep openvswitch | awk '{ print $1;}')
     echo "Removing existing Open vSwitch packages:"
     echo $pkgs
     if ! $remove $pkgs; then
         echo "Not all packages removed correctly"
     fi
     # For some reason this doesn't happen
-    if scripts=`ls /etc/init.d/*openvswitch* 2>/dev/null`; then
+    if scripts=$(ls /etc/init.d/*openvswitch* 2>/dev/null); then
         echo $scripts
         for s in $scripts; do
             s=$(basename $s)
