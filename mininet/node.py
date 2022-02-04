@@ -984,7 +984,7 @@ class UserSwitch( Switch ):
         if self.listenPort:
             self.opts += ' --listen=ptcp:%i ' % self.listenPort
         else:
-            self.opts += ' --listen=punix:/tmp/%s.listen' % self.name
+            self.opts += ' --listen=punix:/tmp/mn/%s.listen' % self.name
         self.dpopts = dpopts
 
     @classmethod
@@ -997,7 +997,7 @@ class UserSwitch( Switch ):
         "Run dpctl command"
         listenAddr = None
         if not self.listenPort:
-            listenAddr = 'unix:/tmp/%s.listen' % self.name
+            listenAddr = 'unix:/tmp/mn/%s.listen' % self.name
         else:
             listenAddr = 'tcp:127.0.0.1:%i' % self.listenPort
         return self.cmd( 'dpctl ' + ' '.join( args ) +
@@ -1036,19 +1036,19 @@ class UserSwitch( Switch ):
 
     def start( self, controllers ):
         """Start OpenFlow reference user datapath.
-           Log to /tmp/sN-{ofd,ofp}.log.
+           Log to /tmp/mn/sN-{ofd,ofp}.log.
            controllers: list of controller objects"""
         # Add controllers
         clist = ','.join( [ 'tcp:%s:%d' % ( c.IP(), c.port )
                             for c in controllers ] )
-        ofdlog = '/tmp/' + self.name + '-ofd.log'
-        ofplog = '/tmp/' + self.name + '-ofp.log'
+        ofdlog = '/tmp/mn/' + self.name + '-ofd.log'
+        ofplog = '/tmp/mn/' + self.name + '-ofp.log'
         intfs = [ str( i ) for i in self.intfList() if not i.IP() ]
         self.cmd( 'ofdatapath -i ' + ','.join( intfs ) +
-                  ' punix:/tmp/' + self.name + ' -d %s ' % self.dpid +
+                  ' punix:/tmp/mn/' + self.name + ' -d %s ' % self.dpid +
                   self.dpopts +
                   ' 1> ' + ofdlog + ' 2> ' + ofdlog + ' &' )
-        self.cmd( 'ofprotocol unix:/tmp/' + self.name +
+        self.cmd( 'ofprotocol unix:/tmp/mn/' + self.name +
                   ' ' + clist +
                   ' --fail=closed ' + self.opts +
                   ' 1> ' + ofplog + ' 2>' + ofplog + ' &' )
@@ -1366,7 +1366,7 @@ class IVSSwitch( Switch ):
             args.extend( ['--listen', '127.0.0.1:%i' % self.listenPort] )
         args.append( self.opts )
 
-        logfile = '/tmp/ivs.%s.log' % self.name
+        logfile = '/tmp/mn/ivs.%s.log' % self.name
 
         self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 </dev/null &' )
 
@@ -1436,9 +1436,9 @@ class Controller( Node ):
 
     def start( self ):
         """Start <controller> <args> on controller.
-           Log to /tmp/cN.log"""
+           Log to /tmp/mn/cN.log"""
         pathCheck( self.command )
-        cout = '/tmp/' + self.name + '.log'
+        cout = '/tmp/mn/' + self.name + '.log'
         if self.cdir is not None:
             self.cmd( 'cd ' + self.cdir )
         self.cmd( self.command + ' ' + self.cargs % self.port +

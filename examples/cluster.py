@@ -174,7 +174,7 @@ class RemoteMixin( object ):
         ClusterCleanup.add( server=server, user=user )
         if controlPath is True:
             # Set a default control path for shared SSH connections
-            controlPath = '/tmp/mn-%r@%h:%p'
+            controlPath = '/tmp/mn/mn-%r@%h:%p'
         self.controlPath = controlPath
         self.splitInit = splitInit
         if self.user and self.server != 'localhost':

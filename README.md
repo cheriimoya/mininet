@@ -63,7 +63,7 @@ Mininet includes:
   tells host h11 to run the command `ifconfig -a`
 
 * A "cleanup" command to get rid of junk (interfaces, processes, files
-  in /tmp, etc.) which might be left around by Mininet or Linux. Try
+  in /tmp/mn, etc.) which might be left around by Mininet or Linux. Try
   this if things stop working!
 
   `mn -c`

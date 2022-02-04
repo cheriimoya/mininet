@@ -65,8 +65,8 @@ class Cleanup( object ):
         # And kill off sudo mnexec
         sh( 'pkill -9 -f "sudo mnexec"')
 
-        info( "*** Removing junk from /tmp\n" )
-        sh( 'rm -f /tmp/vconn* /tmp/vlogs* /tmp/*.out /tmp/*.log' )
+        info( "*** Removing /tmp/mn\n" )
+        sh( 'rm -rf /tmp/mn' )
 
         info( "*** Removing old X11 tunnels\n" )
         cleanUpScreens()

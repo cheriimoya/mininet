@@ -30,7 +30,7 @@ class testControlNet( unittest.TestCase ):
         count = 1
         p = pexpect.spawn( 'python -m mininet.examples.controlnet', logfile=stdout )
         p.expect( self.prompt )
-        lp = pexpect.spawn( 'tail -f /tmp/s1-ofp.log', logfile=stdout )
+        lp = pexpect.spawn( 'tail -f /tmp/mn/s1-ofp.log', logfile=stdout )
         lp.expect( 'tcp:\d+\.\d+\.\d+\.(\d+):\d+: connected' )
         ip = int( lp.match.group( 1 ) )
         self.assertEqual( count, ip )
